@@ -15,7 +15,10 @@ pipeline {
         stage('🛠️ Pull Code from GitHub') {
             steps {
                 script {
-                    sh 'git clone https://github.com/ShreyasBhagat2802/Docker_Chatapp.git $WORKSPACE || $WORKSPACE && git pull'
+                    sh '''
+                    rm -rf $WORKSPACE
+                    git clone https://github.com/ShreyasBhagat2802/Docker_Chatapp.git $WORKSPACE || $WORKSPACE && git pull
+                    '''
                 }
             }
         }
