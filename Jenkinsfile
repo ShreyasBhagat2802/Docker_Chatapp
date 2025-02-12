@@ -5,6 +5,7 @@ pipeline {
         DOCKER_SERVER = "ubuntu@10.0.3.221"  // Update with your Docker server IP
         PROJECT_DIR = "/home/ubuntu/chatapp"  // Directory on the Docker Server
         GIT_REPO = "https://github.com/ShreyasBhagat2802/Docker_Chatapp.git"
+        SSH_KEY = "/home/jenkins/.ssh/id_rsa"
     }
 
     stages {
@@ -22,7 +23,7 @@ pipeline {
                 script {
                     echo "Syncing files to the backend server from the Build-Agent..."
                     sh """
-                    rsync -avz -e "ssh ${DOCKER_SERVER}:${PROJECT_DIR}" || { echo 'ERROR: File sync failed. Please check the SSH connection and directory permissions.'; exit 1; }
+                    rsync -avz -e "ssh -i ${SSH_KEY}" \$(pwd)/ ${DOCKER_SERVER}:${PROJECT_DIR} || { echo 'ERROR: File sync failed. Please check the SSH connection and directory permissions.'; exit 1; }
                     """
                 }
             }
