@@ -35,8 +35,9 @@ pipeline {
                     sh '''
                     ssh -o StrictHostKeyChecking=no $DOCKER_SERVER << EOF
                     cd $PROJECT_DIR
-                    docker kill -f $(docker ps -aq)
-                    docker rmi -f $(docker images -q)
+                    docker ps -q | xargs docker stop
+                    docker ps -aq | xargs docker rm
+                    docker images -q | xargs docker rmi
                     docker compose --env-file .env up -d 
                     EOF
                     '''
