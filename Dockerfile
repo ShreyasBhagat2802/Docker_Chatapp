@@ -21,7 +21,7 @@ WORKDIR /app
 
 # Copy the project files
 #COPY . .
-RUN git clone https://github.com/ShreyasBhagat2802/Django_Chatapp /app
+RUN git clone https://github.com/ShreyasBhagat2802/Docker_Chatapp.git /app
 RUN echo $DB_HOST
 
 # Install dependencies
