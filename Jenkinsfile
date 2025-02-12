@@ -15,7 +15,7 @@ pipeline {
         stage('🛠️ Pull Code from GitHub') {
             steps {
                 script {
-                    sh 'git clone https://github.com/ShreyasBhagat2802/Docker_Chatapp.git /home/ubuntu/chatapp || cd /home/ubuntu/chatapp && git pull'
+                    sh 'git clone https://github.com/ShreyasBhagat2802/Docker_Chatapp.git $WORKSPACE || $WORKSPACE && git pull'
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    cd /home/ubuntu/chatapp
+                    cd $WORKSPACE
                     docker-compose down || true
                     docker-compose build
                     docker-compose up -d
