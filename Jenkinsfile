@@ -2,35 +2,43 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HOST = "tcp://10.0.3.221:2375"
-        MYSQL_ROOT_PASSWORD = "root@1234"
-        DB_HOST = "mysql_db"
-        DB_NAME = "myrdsdb"
-        DB_USER = "admin"
-        DB_PASSWORD = "Shreyas28"
-        DB_PORT = "3306"
+        DOCKER_SERVER = "ubuntu@10.0.3.221"  // Update with your Docker server IP
+        PROJECT_DIR = "/home/ubuntu/chatapp"  // Directory on the Docker Server
+        GIT_REPO = "https://github.com/ShreyasBhagat2802/Docker_Chatapp.git"
     }
 
     stages {
         stage('🛠️ Pull Code from GitHub') {
             steps {
                 script {
-                    sh '''
-                    rm -rf $WORKSPACE
-                    git clone https://github.com/ShreyasBhagat2802/Docker_Chatapp.git $WORKSPACE || $WORKSPACE && git pull
-                    '''
+                    echo "Cloning the application repository on the Master Node..."
+                    git branch: 'main', url: "${GIT_REPO}"
                 }
             }
         }
 
-        stage('🐳 Build & Start Containers') {
+        stage('📤 Sync Files to Docker Server (rsync)') {
+            steps {
+                script {
+                    echo "Syncing files to the backend server from the Build-Agent..."
+                    sh """
+                    rsync -avz -e "ssh ${DOCKER_SERVER}:${ROJECT_DIRR} || { echo 'ERROR: File sync failed. Please check the SSH connection and directory permissions.'; exit 1; }
+                    """
+                }
+            }
+        }
+
+        stage('🐳 Build & Start Containers on Docker Server') {
             steps {
                 script {
                     sh '''
-                    cd $WORKSPACE
-                    docker-compose down || true
-                    docker-compose build
-                    docker-compose up -d
+                    ssh -o StrictHostKeyChecking=no $DOCKER_SERVER << EOF
+                    cd $PROJECT_DIR
+                    docker stop $(docker ps -q)
+                    docker rm $(docker ps -aq)
+                    docker rmi $(docker images -q)
+                    docker compose --env-file .env up -d 
+                    EOF
                     '''
                 }
             }
@@ -39,7 +47,7 @@ pipeline {
         stage('✅ Check Running Containers') {
             steps {
                 script {
-                    sh 'docker ps'
+                    sh 'ssh -o StrictHostKeyChecking=no $DOCKER_SERVER "docker ps"'
                 }
             }
         }
