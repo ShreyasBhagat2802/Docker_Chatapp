@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  database:
+    build:
+      context: /home/ubuntu/chatapp/Database
+    container_name: mysql_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - chatapp_network
+
+  backend:
+    build:
+      context: /home/ubuntu/chatapp
+      #args:
+      #  DB_HOST: ${DB_HOST}
+      #  DB_NAME: ${DB_NAME}
+      #  DB_USER: ${DB_USER}
+      #  DB_PASSWORD: ${DB_PASSWORD}
+    container_name: django_backend
+    restart: always
+    depends_on:
+      - database
+    environment:
+      - DB_PORT=${DB_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "8000:8000"
+    networks:
+      - chatapp_network
+
+  frontend:
+    build:
+      context: /home/ubuntu/chatapp/Frontend
+    container_name: nginx_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - chatapp_network
+
+networks:
+  chatapp_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
