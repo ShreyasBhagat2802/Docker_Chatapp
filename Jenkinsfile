@@ -22,7 +22,7 @@ pipeline {
                 script {
                     echo "Syncing files to the backend server from the Build-Agent..."
                     sh """
-                    rsync -avz -e "ssh ${DOCKER_SERVER}:${ROJECT_DIRR} || { echo 'ERROR: File sync failed. Please check the SSH connection and directory permissions.'; exit 1; }
+                    rsync -avz -e "ssh ${DOCKER_SERVER}:${POJECT_DIR} || { echo 'ERROR: File sync failed. Please check the SSH connection and directory permissions.'; exit 1; }
                     """
                 }
             }
